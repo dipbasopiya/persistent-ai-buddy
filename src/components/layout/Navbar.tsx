@@ -7,9 +7,7 @@ import {
   BarChart3, 
   Brain, 
   Settings, 
-  Zap, 
-  Sun, 
-  Moon, 
+  Zap,
   Bell, 
   Menu,
   X
@@ -56,10 +54,6 @@ export function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const toggleTheme = () => {
-    updateSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' });
-  };
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-card/80 backdrop-blur-xl border-b border-border">
@@ -164,30 +158,6 @@ export function Navbar() {
               </AnimatePresence>
             </div>
 
-            {/* Theme Toggle */}
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-9 h-9">
-              <AnimatePresence mode="wait">
-                {settings.theme === 'dark' ? (
-                  <motion.div
-                    key="sun"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                  >
-                    <Sun className="w-4 h-4" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="moon"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                  >
-                    <Moon className="w-4 h-4" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Button>
 
             {/* Mobile Menu Toggle */}
             <Button
