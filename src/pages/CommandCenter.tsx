@@ -35,99 +35,95 @@ export function CommandCenter() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-6"
+      className="space-y-4"
     >
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold jarvis-gradient-text">Command Center</h1>
-          <p className="text-muted-foreground text-sm md:text-base mt-1">System overview at a glance</p>
+          <h1 className="text-xl md:text-2xl font-bold jarvis-gradient-text">Command Center</h1>
+          <p className="text-muted-foreground text-sm">System overview at a glance</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl jarvis-glass jarvis-border-glow">
-          <Zap className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium">JARVIS Active</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border">
+          <Zap className="w-4 h-4 text-primary" />
+          <span className="text-xs font-medium">JARVIS Active</span>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           title="Temperature"
           value={`${displayTemp}${tempUnit}`}
           subtitle={temperature.condition}
-          icon={<Thermometer className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />}
+          icon={<Thermometer className="w-4 h-4 text-primary-foreground" />}
         />
         <StatCard
           title="Active Alerts"
           value={todayAlerts}
           subtitle="Today"
-          icon={<AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />}
+          icon={<AlertTriangle className="w-4 h-4 text-primary-foreground" />}
           variant={todayAlerts > 0 ? 'warning' : 'default'}
         />
         <StatCard
           title="Tasks"
           value={`${completedTasks}/${tasks.length}`}
           subtitle="Completed"
-          icon={<ListTodo className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />}
+          icon={<ListTodo className="w-4 h-4 text-primary-foreground" />}
         />
         <StatCard
           title="Confidence"
           value={confidence.score}
           subtitle="Score"
-          icon={<TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />}
+          icon={<TrendingUp className="w-4 h-4 text-primary-foreground" />}
           variant={confidence.score >= 70 ? 'success' : confidence.score >= 50 ? 'warning' : 'danger'}
         />
       </div>
 
       {/* Decision & Devices Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Decision Gate Status */}
-        <Card className="jarvis-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-primary" />
+        <Card className="bg-card border rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Brain className="w-4 h-4 text-primary" />
               Decision Gate
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className={cn('text-3xl md:text-4xl font-bold', decisionColors[currentDecision.type])}>
-                {currentDecision.type === 'proceed' && 'Proceed'}
-                {currentDecision.type === 'attention' && 'Attention'}
-                {currentDecision.type === 'reschedule' && 'Reschedule'}
-                {currentDecision.type === 'high-risk' && 'High Risk'}
-              </div>
+          <CardContent className="pt-0">
+            <div className={cn('text-2xl md:text-3xl font-bold', decisionColors[currentDecision.type])}>
+              {currentDecision.type === 'proceed' && 'Proceed'}
+              {currentDecision.type === 'attention' && 'Attention'}
+              {currentDecision.type === 'reschedule' && 'Reschedule'}
+              {currentDecision.type === 'high-risk' && 'High Risk'}
             </div>
-            <p className="text-muted-foreground text-sm mt-2">{currentDecision.reason}</p>
+            <p className="text-muted-foreground text-sm mt-1">{currentDecision.reason}</p>
             {latestDecision && (
-              <p className="text-xs text-muted-foreground mt-4">
-                Last decision: {new Date(latestDecision.timestamp).toLocaleString()}
+              <p className="text-xs text-muted-foreground mt-2">
+                Last: {new Date(latestDecision.timestamp).toLocaleTimeString()}
               </p>
             )}
           </CardContent>
         </Card>
 
         {/* Devices Summary */}
-        <Card className="jarvis-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
-              Devices Summary
+        <Card className="bg-card border rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="w-4 h-4 text-primary" />
+              Devices
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="text-3xl md:text-4xl font-bold text-primary">
-                {activeDevices}<span className="text-muted-foreground text-xl">/{devices.length}</span>
-              </div>
-              <span className="text-muted-foreground">Active</span>
+          <CardContent className="pt-0">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl md:text-3xl font-bold text-primary">{activeDevices}</span>
+              <span className="text-muted-foreground text-sm">/ {devices.length} active</span>
             </div>
-            <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="grid grid-cols-3 gap-2 mt-3">
               {devices.slice(0, 6).map((device) => (
                 <div 
                   key={device.id}
                   className={cn(
-                    'p-2 rounded-lg text-center text-xs',
+                    'px-2 py-1.5 rounded-lg text-center text-xs truncate',
                     device.isOn ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                   )}
                 >
@@ -140,26 +136,26 @@ export function CommandCenter() {
       </div>
 
       {/* Recent Activity */}
-      <Card className="jarvis-card">
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+      <Card className="bg-card border rounded-xl">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Recent Activity</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {logs.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">No recent activity</p>
+            <p className="text-center text-muted-foreground py-4 text-sm">No recent activity</p>
           ) : (
-            <div className="space-y-2 max-h-[200px] overflow-y-auto scrollbar-jarvis">
+            <div className="space-y-1.5 max-h-[180px] overflow-y-auto scrollbar-jarvis">
               {logs.slice(-5).reverse().map((log) => (
-                <div key={log.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+                <div key={log.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                   <div className={cn(
-                    'w-2 h-2 rounded-full',
+                    'w-1.5 h-1.5 rounded-full shrink-0',
                     log.severity === 'error' && 'bg-destructive',
                     log.severity === 'warning' && 'bg-warning',
                     log.severity === 'success' && 'bg-success',
                     log.severity === 'info' && 'bg-primary'
                   )} />
                   <p className="text-sm flex-1 truncate">{log.message}</p>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {new Date(log.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
