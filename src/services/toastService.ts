@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { playNotificationSound } from './notificationService';
 
 export type ToastType = 'success' | 'warning' | 'error' | 'info';
 
@@ -20,6 +21,9 @@ export function showToast(type: ToastType, message: string, options?: ToastOptio
       onClick: options.action.onClick,
     } : undefined,
   };
+
+  // Play sound based on toast type
+  playNotificationSound(type);
 
   switch (type) {
     case 'success':
