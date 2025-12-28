@@ -34,38 +34,37 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
       className={cn(
-        'jarvis-card',
+        'p-3 md:p-4 rounded-xl bg-card border transition-all duration-200 hover:shadow-md',
         variantStyles[variant],
         className
       )}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm text-muted-foreground font-medium">{title}</p>
-          <p className="text-3xl font-bold mt-2 jarvis-gradient-text">{value}</p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground font-medium truncate">{title}</p>
+          <p className="text-xl md:text-2xl font-bold mt-0.5 jarvis-gradient-text">{value}</p>
           {subtitle && (
-            <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
           )}
           {trend && (
-            <div className="flex items-center gap-1 mt-2">
+            <div className="flex items-center gap-1 mt-1">
               <span
                 className={cn(
-                  'text-sm font-medium',
+                  'text-xs font-medium',
                   trend.isPositive ? 'text-success' : 'text-destructive'
                 )}
               >
                 {trend.isPositive ? '+' : ''}{trend.value}%
               </span>
-              <span className="text-xs text-muted-foreground">vs last period</span>
             </div>
           )}
         </div>
         {icon && (
-          <div className="w-12 h-12 rounded-xl jarvis-gradient flex items-center justify-center">
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg jarvis-gradient flex items-center justify-center shrink-0">
             {icon}
           </div>
         )}

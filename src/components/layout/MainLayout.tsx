@@ -1,21 +1,30 @@
 import { ReactNode } from 'react';
-import { Sidebar } from './Sidebar';
-import { Header } from './Header';
+import { Navbar } from './Navbar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
+  const location = useLocation();
+
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-6 scrollbar-jarvis">
+    <div className="min-h-screen w-full bg-background">
+      <Navbar />
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={location.pathname}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="max-w-7xl mx-auto px-4 py-4 md:py-6"
+        >
           {children}
-        </main>
-      </div>
+        </motion.main>
+      </AnimatePresence>
     </div>
   );
 }

@@ -42,7 +42,6 @@ export function TemperatureModule() {
     setIsRefreshing(true);
     refreshTemperature();
     
-    // Show toast for temperature alerts
     if (temperature.current > 30) {
       showAlertToast('High temperature detected! Stay hydrated.', 'warning');
     } else if (temperature.current < 10) {
@@ -56,16 +55,16 @@ export function TemperatureModule() {
   const getTemperatureAlerts = () => {
     const alerts = [];
     if (temperature.current > 30) {
-      alerts.push({ type: 'warning', message: 'High temperature! Stay hydrated and seek shade.' });
+      alerts.push({ type: 'warning', message: 'High temperature! Stay hydrated.' });
     }
     if (temperature.current < 10) {
       alerts.push({ type: 'info', message: 'Cold weather! Dress warmly.' });
     }
     if (temperature.humidity > 80) {
-      alerts.push({ type: 'warning', message: 'High humidity levels detected.' });
+      alerts.push({ type: 'warning', message: 'High humidity levels.' });
     }
     if (temperature.humidity < 30) {
-      alerts.push({ type: 'info', message: 'Low humidity. Consider using a humidifier.' });
+      alerts.push({ type: 'info', message: 'Low humidity detected.' });
     }
     return alerts;
   };
@@ -82,70 +81,69 @@ export function TemperatureModule() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Main Temperature Display */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 jarvis-card overflow-hidden">
-          <CardContent className="p-4 md:p-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-2 bg-card border rounded-xl overflow-hidden">
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
                 <motion.div 
-                  className="w-20 h-20 md:w-32 md:h-32 rounded-3xl jarvis-gradient flex items-center justify-center jarvis-glow-strong"
+                  className="w-16 h-16 md:w-20 md:h-20 rounded-2xl jarvis-gradient flex items-center justify-center"
                   animate={{ scale: [1, 1.02, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Thermometer className="w-10 h-10 md:w-16 md:h-16 text-primary-foreground" />
+                  <Thermometer className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground" />
                 </motion.div>
                 <div>
-                  <p className="text-4xl md:text-7xl font-bold jarvis-gradient-text">
+                  <p className="text-3xl md:text-5xl font-bold jarvis-gradient-text">
                     {displayTemp}{tempUnit}
                   </p>
-                  <p className="text-lg md:text-xl text-muted-foreground mt-2 flex items-center gap-2">
-                    <ConditionIcon className="w-5 h-5 md:w-6 md:h-6" />
+                  <p className="text-sm md:text-base text-muted-foreground mt-1 flex items-center gap-2">
+                    <ConditionIcon className="w-4 h-4" />
                     {temperature.condition}
                   </p>
                 </div>
               </div>
-              <div className="flex flex-row md:flex-col gap-4 md:gap-6">
-                <div className="text-center p-3 md:p-4 bg-muted/50 rounded-xl">
-                  <Droplets className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-1 md:mb-2" />
-                  <p className="text-xl md:text-2xl font-bold">{temperature.humidity}%</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Humidity</p>
+              <div className="flex gap-3">
+                <div className="text-center p-3 bg-muted/50 rounded-xl">
+                  <Droplets className="w-5 h-5 text-primary mx-auto mb-1" />
+                  <p className="text-lg font-bold">{temperature.humidity}%</p>
+                  <p className="text-xs text-muted-foreground">Humidity</p>
                 </div>
-                <div className="text-center p-3 md:p-4 bg-muted/50 rounded-xl">
-                  <Wind className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-1 md:mb-2" />
-                  <p className="text-xl md:text-2xl font-bold">12 km/h</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Wind</p>
+                <div className="text-center p-3 bg-muted/50 rounded-xl">
+                  <Wind className="w-5 h-5 text-primary mx-auto mb-1" />
+                  <p className="text-lg font-bold">12 km/h</p>
+                  <p className="text-xs text-muted-foreground">Wind</p>
                 </div>
               </div>
             </div>
-            <div className="mt-4 md:mt-6">
-              <Button 
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full md:w-auto jarvis-gradient"
-              >
-                <RefreshCw className={cn('w-4 h-4 mr-2', isRefreshing && 'animate-spin')} />
-                Refresh Data
-              </Button>
-            </div>
+            <Button 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              size="sm"
+              className="mt-4 jarvis-gradient"
+            >
+              <RefreshCw className={cn('w-4 h-4 mr-2', isRefreshing && 'animate-spin')} />
+              Refresh
+            </Button>
           </CardContent>
         </Card>
 
         {/* Season Card */}
-        <Card className="jarvis-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl">{season.emoji}</span>
-              {season.name} Season
+        <Card className="bg-card border rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <span className="text-xl">{season.emoji}</span>
+              {season.name}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm md:text-base">{season.suggestion}</p>
-            <div className="mt-4 p-4 bg-primary/10 rounded-xl jarvis-border-glow">
-              <p className="text-sm font-medium text-primary">AI Recommendation</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Based on current conditions, {temperature.current > 25 ? 'stay hydrated and avoid prolonged sun exposure' : 'consider bringing a light jacket for outdoor activities'}.
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground">{season.suggestion}</p>
+            <div className="mt-3 p-3 bg-primary/10 rounded-lg">
+              <p className="text-xs font-medium text-primary">Recommendation</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {temperature.current > 25 ? 'Stay hydrated' : 'Bring a jacket'}
               </p>
             </div>
           </CardContent>
@@ -154,33 +152,33 @@ export function TemperatureModule() {
 
       {/* Alerts */}
       {alerts.length > 0 && (
-        <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
           {alerts.map((alert, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               className={cn(
-                'flex items-center gap-3 p-4 rounded-xl',
-                alert.type === 'warning' ? 'bg-warning/10 border border-warning/30' : 'bg-primary/10 border border-primary/30'
+                'flex items-center gap-2 px-3 py-2 rounded-lg text-sm',
+                alert.type === 'warning' ? 'bg-warning/10 text-warning' : 'bg-primary/10 text-primary'
               )}
             >
-              <AlertTriangle className={cn('w-5 h-5', alert.type === 'warning' ? 'text-warning' : 'text-primary')} />
-              <p className="font-medium text-sm md:text-base">{alert.message}</p>
+              <AlertTriangle className="w-4 h-4" />
+              <span>{alert.message}</span>
             </motion.div>
           ))}
         </div>
       )}
 
       {/* Temperature History Chart */}
-      <Card className="jarvis-card">
-        <CardHeader>
-          <CardTitle>Temperature History</CardTitle>
+      <Card className="bg-card border rounded-xl">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Temperature History</CardTitle>
         </CardHeader>
         <CardContent>
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={180}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
@@ -189,13 +187,14 @@ export function TemperatureModule() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
                 <Tooltip 
                   contentStyle={{ 
                     background: 'hsl(var(--card))', 
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    fontSize: '12px'
                   }} 
                 />
                 <Area 
@@ -208,8 +207,8 @@ export function TemperatureModule() {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-48 flex items-center justify-center text-muted-foreground">
-              <p>No temperature history yet. Click refresh to start tracking.</p>
+            <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
+              <p>Click refresh to start tracking.</p>
             </div>
           )}
         </CardContent>
