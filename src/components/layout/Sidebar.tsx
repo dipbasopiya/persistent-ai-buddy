@@ -1,47 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  LayoutDashboard,
-  Thermometer,
-  ListTodo,
-  TrendingUp,
-  Cpu,
-  FileText,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Zap,
-  Brain,
-  AlertTriangle,
-  Camera,
-} from 'lucide-react';
+import { Home, Globe, BarChart3, Brain, Settings, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { saveLastActivePage } from '@/services/storageService';
 
 const navItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/temperature', icon: Thermometer, label: 'Temperature' },
-  { path: '/alerts', icon: AlertTriangle, label: 'Alerts & Behavior' },
-  { path: '/tasks', icon: ListTodo, label: 'Tasks & Schedule' },
-  { path: '/progress', icon: TrendingUp, label: 'Work Progress' },
-  { path: '/decisions', icon: Brain, label: 'Decision Gate' },
-  { path: '/devices', icon: Cpu, label: 'Device Control' },
-  { path: '/logs', icon: FileText, label: 'Control Logs' },
-  { path: '/settings', icon: Settings, label: 'Settings' },
+  { path: '/', icon: Home, label: 'Command Center' },
+  { path: '/context', icon: Globe, label: 'Context Monitor' },
+  { path: '/productivity', icon: BarChart3, label: 'Productivity Core' },
+  { path: '/intelligence', icon: Brain, label: 'Intelligence Hub' },
+  { path: '/console', icon: Settings, label: 'System Console' },
 ];
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
+  // Save last active page
+  useEffect(() => {
+    saveLastActivePage(location.pathname);
+  }, [location.pathname]);
+
+  // Collapse sidebar on mobile by default
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsCollapsed(true);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <motion.aside
       initial={false}
-      animate={{ width: isCollapsed ? 72 : 260 }}
+      animate={{ width: isCollapsed ? 72 : 240 }}
       className="h-screen sticky top-0 flex flex-col bg-sidebar border-r border-sidebar-border z-50"
     >
       {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
+      <div className="h-14 md:h-16 flex items-center justify-between px-3 md:px-4 border-b border-sidebar-border">
         <AnimatePresence mode="wait">
           {!isCollapsed && (
             <motion.div
@@ -53,7 +53,7 @@ export function Sidebar() {
               <div className="w-8 h-8 rounded-lg jarvis-gradient flex items-center justify-center">
                 <Zap className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl jarvis-gradient-text">JARVIS</span>
+              <span className="font-bold text-lg md:text-xl jarvis-gradient-text">JARVIS</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -103,7 +103,7 @@ export function Sidebar() {
       </nav>
 
       {/* Collapse Toggle */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-2 md:p-3 border-t border-sidebar-border">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors"
