@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon, Bell, BellOff, Monitor, Volume2, VolumeX } from 'lucide-react';
+import { Sun, Moon, Bell, BellOff, Monitor, Volume2, MapPin, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { playNotificationSound, isSoundEnabled, setSoundEnabled } from '@/services/notificationService';
+import { useJarvis } from '@/contexts/JarvisContext';
+import { searchLocation, saveLocation, LocationData } from '@/services/weatherService';
 
 export function SettingsModule() {
   const { theme, setTheme } = useTheme();
+  const { location, updateLocation } = useJarvis();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [soundEnabled, setSoundEnabledState] = useState(true);
+  const [locationSearch, setLocationSearch] = useState('');
+  const [searchResults, setSearchResults] = useState<LocationData[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -80,6 +87,28 @@ export function SettingsModule() {
     }
   };
 
+  const handleLocationSearch = async () => {
+    if (!locationSearch.trim()) return;
+    setIsSearching(true);
+    try {
+      const results = await searchLocation(locationSearch);
+      setSearchResults(results);
+    } catch (error) {
+      toast.error('Failed to search location');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectLocation = async (loc: LocationData) => {
+    saveLocation(loc);
+    await updateLocation(loc);
+    setSearchResults([]);
+    setLocationSearch('');
+    toast.success(`Location set to ${loc.city}`);
+    playNotificationSound('success');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -127,6 +156,50 @@ export function SettingsModule() {
         </CardContent>
       </Card>
 
+      {/* Location Settings */}
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <MapPin className="w-4 h-4 text-primary" />
+            Location
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {location && (
+            <p className="text-sm text-muted-foreground">
+              Current: {location.city || `${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <Input
+              placeholder="Search city..."
+              value={locationSearch}
+              onChange={(e) => setLocationSearch(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
+              className="flex-1"
+            />
+            <Button variant="outline" size="icon" onClick={handleLocationSearch} disabled={isSearching}>
+              <Search className="w-4 h-4" />
+            </Button>
+          </div>
+          {searchResults.length > 0 && (
+            <div className="space-y-1">
+              {searchResults.map((loc, i) => (
+                <Button
+                  key={i}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-left"
+                  onClick={() => handleSelectLocation(loc)}
+                >
+                  {loc.city}, {loc.country}
+                </Button>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Sound Settings */}
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
@@ -142,7 +215,7 @@ export function SettingsModule() {
                 Notification Sounds
               </Label>
               <p className="text-xs text-muted-foreground">
-                Play sounds for alerts and actions
+                Play sounds for alerts
               </p>
             </div>
             <Switch
@@ -153,6 +226,8 @@ export function SettingsModule() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Notification Settings */}
 
       {/* Notification Settings */}
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
