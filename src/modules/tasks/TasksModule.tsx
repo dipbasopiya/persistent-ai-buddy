@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Task } from '@/lib/storage';
 import { cn } from '@/lib/utils';
 import { showToast } from '@/services/toastService';
+import { formatIndiaDate } from '@/lib/dateUtils';
 
 const priorityColors = {
   low: 'border-l-muted-foreground text-muted-foreground',
@@ -321,9 +322,9 @@ export function TasksModule() {
                           <Flag className={cn('w-3 h-3 md:w-4 md:h-4 flex-shrink-0', priorityColors[task.priority])} />
                         </div>
                         <div className="flex items-center gap-2 md:gap-4 mt-1">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(task.dueDate).toLocaleDateString()}
+                            {formatIndiaDate(task.dueDate)}
                           </span>
                           {isOverdue && (
                             <span className="text-xs text-destructive font-medium">Overdue!</span>
