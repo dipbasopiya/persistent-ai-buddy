@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -51,15 +52,40 @@ export function ProgressModule() {
     score: entry.score,
   }));
 
-  const weeklyData = [
-    { day: 'Mon', tasks: 5, completed: 4 },
-    { day: 'Tue', tasks: 3, completed: 3 },
-    { day: 'Wed', tasks: 7, completed: 5 },
-    { day: 'Thu', tasks: 4, completed: 4 },
-    { day: 'Fri', tasks: 6, completed: 4 },
-    { day: 'Sat', tasks: 2, completed: 2 },
-    { day: 'Sun', tasks: 1, completed: 1 },
-  ];
+  // Calculate weekly data from real tasks
+  const weeklyData = useMemo(() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // Start of current week (Sunday)
+    weekStart.setHours(0, 0, 0, 0);
+
+    const result = days.map((dayName, index) => {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + index);
+      const nextDay = new Date(dayDate);
+      nextDay.setDate(dayDate.getDate() + 1);
+
+      // Count tasks due on this day
+      const dayTasks = tasks.filter(task => {
+        const dueDate = new Date(task.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate >= dayDate && dueDate < nextDay;
+      });
+
+      // Count completed tasks for this day
+      const completedTasks = dayTasks.filter(task => task.status === 'completed');
+
+      return {
+        day: dayName,
+        tasks: dayTasks.length,
+        completed: completedTasks.length,
+      };
+    });
+
+    // Reorder to start from Monday
+    return [...result.slice(1), result[0]];
+  }, [tasks]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-success';
