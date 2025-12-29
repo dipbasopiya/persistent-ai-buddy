@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import {
   Settings,
   Task,
@@ -28,6 +28,12 @@ import {
   generateId,
   initDB,
 } from '@/lib/storage';
+import {
+  getCurrentPosition,
+  fetchWeather,
+  getSavedLocation,
+  LocationData,
+} from '@/services/weatherService';
 
 interface JarvisContextType {
   // State
@@ -39,6 +45,8 @@ interface JarvisContextType {
   temperature: TemperatureData;
   confidence: ConfidenceData;
   isLoading: boolean;
+  location: LocationData | null;
+  isWeatherLoading: boolean;
   
   // Settings
   updateSettings: (settings: Partial<Settings>) => void;
@@ -56,8 +64,9 @@ interface JarvisContextType {
   toggleDevice: (id: string) => void;
   updateDeviceValue: (id: string, value: number) => void;
   
-  // Temperature
-  refreshTemperature: () => void;
+  // Temperature & Location
+  refreshTemperature: () => Promise<void>;
+  updateLocation: (location: LocationData) => Promise<void>;
   
   // Confidence
   recalculateConfidence: () => void;
@@ -80,6 +89,9 @@ export function JarvisProvider({ children }: { children: React.ReactNode }) {
   const [temperature, setTemperature] = useState<TemperatureData>(getTemperature);
   const [confidence, setConfidence] = useState<ConfidenceData>(getConfidence);
   const [isLoading, setIsLoading] = useState(true);
+  const [location, setLocation] = useState<LocationData | null>(getSavedLocation);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(false);
+  const weatherIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize data from IndexedDB
   useEffect(() => {
@@ -103,10 +115,29 @@ export function JarvisProvider({ children }: { children: React.ReactNode }) {
     loadData();
   }, []);
 
-  // Apply theme
+  // Apply theme with system preference support
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(settings.theme);
+    const applyTheme = () => {
+      document.documentElement.classList.remove('light', 'dark');
+      if (settings.theme === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.add(prefersDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.classList.add(settings.theme);
+      }
+    };
+
+    applyTheme();
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (settings.theme === 'system') {
+        applyTheme();
+      }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [settings.theme]);
 
   // Settings
@@ -117,6 +148,77 @@ export function JarvisProvider({ children }: { children: React.ReactNode }) {
       return newSettings;
     });
   }, []);
+
+  // Fetch real weather data (defined without addLog dependency to avoid circular)
+  const fetchRealWeather = useCallback(async (loc: LocationData, logFn?: typeof addLog) => {
+    setIsWeatherLoading(true);
+    try {
+      const weather = await fetchWeather(loc);
+      const currentTemp = getTemperature();
+      const newData: TemperatureData = {
+        current: weather.temperature,
+        humidity: weather.humidity,
+        condition: weather.condition,
+        lastFetched: new Date().toISOString(),
+        locationName: loc.city || `${loc.latitude.toFixed(2)}, ${loc.longitude.toFixed(2)}`,
+        history: [
+          ...currentTemp.history.slice(-23),
+          { time: new Date().toISOString(), temp: weather.temperature },
+        ],
+      };
+      saveTemperature(newData);
+      setTemperature(newData);
+    } catch (error) {
+      console.error('Failed to fetch weather:', error);
+    } finally {
+      setIsWeatherLoading(false);
+    }
+  }, []);
+
+  // Initialize location and weather on first load
+  useEffect(() => {
+    const initWeather = async () => {
+      let currentLocation = getSavedLocation();
+      
+      if (!currentLocation) {
+        try {
+          currentLocation = await getCurrentPosition();
+          setLocation(currentLocation);
+        } catch (error) {
+          console.log('Geolocation failed, using default location');
+          // Default to a fallback location
+          currentLocation = { latitude: 40.7128, longitude: -74.0060, city: 'New York', country: 'USA' };
+          setLocation(currentLocation);
+        }
+      }
+
+      if (currentLocation) {
+        await fetchRealWeather(currentLocation);
+      }
+    };
+
+    initWeather();
+  }, []);
+
+  // Set up weather refresh interval (every 10 minutes)
+  useEffect(() => {
+    if (weatherIntervalRef.current) {
+      clearInterval(weatherIntervalRef.current);
+    }
+
+    weatherIntervalRef.current = setInterval(() => {
+      const currentLoc = getSavedLocation();
+      if (currentLoc) {
+        fetchRealWeather(currentLoc);
+      }
+    }, 10 * 60 * 1000); // 10 minutes
+
+    return () => {
+      if (weatherIntervalRef.current) {
+        clearInterval(weatherIntervalRef.current);
+      }
+    };
+  }, [fetchRealWeather]);
 
   // Tasks
   const addTask = useCallback(async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
@@ -203,34 +305,20 @@ export function JarvisProvider({ children }: { children: React.ReactNode }) {
     addLog('device', 'info', `${device?.name} value set to ${value}`);
   }, [devices, addLog]);
 
-  // Temperature
-  const refreshTemperature = useCallback(() => {
-    // Simulate temperature fetch
-    const newTemp = Math.round(18 + Math.random() * 15);
-    const newHumidity = Math.round(40 + Math.random() * 40);
-    const conditions = ['Clear', 'Cloudy', 'Partly Cloudy', 'Rainy', 'Sunny'];
-    const newCondition = conditions[Math.floor(Math.random() * conditions.length)];
-    
-    const newData: TemperatureData = {
-      current: newTemp,
-      humidity: newHumidity,
-      condition: newCondition,
-      lastFetched: new Date().toISOString(),
-      history: [
-        ...temperature.history.slice(-23),
-        { time: new Date().toISOString(), temp: newTemp },
-      ],
-    };
-    saveTemperature(newData);
-    setTemperature(newData);
-
-    // Generate alerts based on temperature
-    if (newTemp > 30) {
-      addLog('alert', 'warning', 'High temperature detected! Stay hydrated and avoid prolonged sun exposure.');
-    } else if (newTemp < 10) {
-      addLog('alert', 'warning', 'Low temperature detected! Dress warmly and stay comfortable.');
+  // Temperature - now fetches real data
+  const refreshTemperature = useCallback(async () => {
+    const currentLoc = location || getSavedLocation();
+    if (currentLoc) {
+      await fetchRealWeather(currentLoc);
     }
-  }, [temperature.history, addLog]);
+  }, [location, fetchRealWeather]);
+
+  // Update location and fetch weather
+  const updateLocation = useCallback(async (newLocation: LocationData) => {
+    setLocation(newLocation);
+    await fetchRealWeather(newLocation);
+    addLog('system', 'info', `Location updated to ${newLocation.city || 'new location'}`);
+  }, [fetchRealWeather, addLog]);
 
   // Confidence
   const recalculateConfidence = useCallback(() => {
@@ -322,6 +410,8 @@ export function JarvisProvider({ children }: { children: React.ReactNode }) {
     temperature,
     confidence,
     isLoading,
+    location,
+    isWeatherLoading,
     updateSettings,
     addTask,
     updateTask,
@@ -331,6 +421,7 @@ export function JarvisProvider({ children }: { children: React.ReactNode }) {
     toggleDevice,
     updateDeviceValue,
     refreshTemperature,
+    updateLocation,
     recalculateConfidence,
     addDecision,
     triggerFireAlert,

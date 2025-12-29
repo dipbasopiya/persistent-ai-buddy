@@ -10,7 +10,8 @@ import {
   Zap,
   Bell, 
   Menu,
-  X
+  X,
+  Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { saveLastActivePage } from '@/services/storageService';
@@ -18,11 +19,12 @@ import { useJarvis } from '@/contexts/JarvisContext';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { path: '/', icon: Home, label: 'Command Center' },
-  { path: '/context', icon: Globe, label: 'Context Monitor' },
-  { path: '/productivity', icon: BarChart3, label: 'Productivity Core' },
-  { path: '/intelligence', icon: Brain, label: 'Intelligence Hub' },
-  { path: '/console', icon: Settings, label: 'System Console' },
+  { path: '/', icon: Home, label: 'Command' },
+  { path: '/context', icon: Globe, label: 'Context' },
+  { path: '/productivity', icon: BarChart3, label: 'Productivity' },
+  { path: '/intelligence', icon: Brain, label: 'Intelligence' },
+  { path: '/assistant', icon: Bot, label: 'Assistant' },
+  { path: '/console', icon: Settings, label: 'Console' },
 ];
 
 export function Navbar() {

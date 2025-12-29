@@ -47,7 +47,7 @@ export interface ActivitySession {
 }
 
 export interface Settings {
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   temperatureUnit: 'celsius' | 'fahrenheit';
   notificationsEnabled: boolean;
   voiceEnabled: boolean;
@@ -121,7 +121,7 @@ export function getSettings(): Settings {
     return JSON.parse(stored);
   }
   const defaults: Settings = {
-    theme: 'dark',
+    theme: 'system',
     temperatureUnit: 'celsius',
     notificationsEnabled: true,
     voiceEnabled: true,
@@ -175,6 +175,7 @@ export interface TemperatureData {
   condition: string;
   lastFetched: string;
   history: { time: string; temp: number }[];
+  locationName?: string;
 }
 
 export function getTemperature(): TemperatureData {
