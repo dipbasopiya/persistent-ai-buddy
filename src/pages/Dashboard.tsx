@@ -15,16 +15,14 @@ import { DevicesWidget } from '@/components/dashboard/DevicesWidget';
 import { TasksWidget } from '@/components/dashboard/TasksWidget';
 import { LogsWidget } from '@/components/dashboard/LogsWidget';
 import { useJarvis } from '@/contexts/JarvisContext';
+import { isIndiaToday } from '@/lib/dateUtils';
 
 export function Dashboard() {
   const { tasks, devices, logs, confidence } = useJarvis();
 
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const activeDevices = devices.filter(d => d.isOn).length;
-  const todayLogs = logs.filter(l => {
-    const logDate = new Date(l.timestamp).toDateString();
-    return logDate === new Date().toDateString();
-  }).length;
+  const todayLogs = logs.filter(l => isIndiaToday(l.timestamp)).length;
 
   const containerVariants = {
     hidden: { opacity: 0 },

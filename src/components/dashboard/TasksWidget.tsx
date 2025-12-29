@@ -3,6 +3,7 @@ import { CheckCircle2, Circle, Clock, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useJarvis } from '@/contexts/JarvisContext';
 import { cn } from '@/lib/utils';
+import { formatIndiaDate } from '@/lib/dateUtils';
 
 const priorityColors = {
   low: 'border-l-muted-foreground',
@@ -90,7 +91,7 @@ export function TasksWidget() {
                 </p>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Clock className="w-3 h-3" />
-                  {new Date(task.dueDate).toLocaleDateString()}
+                  {formatIndiaDate(task.dueDate)}
                 </div>
               </div>
             </div>

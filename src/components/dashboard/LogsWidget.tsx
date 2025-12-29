@@ -3,6 +3,7 @@ import { ArrowRight, AlertCircle, AlertTriangle, Info, CheckCircle2 } from 'luci
 import { Link } from 'react-router-dom';
 import { useJarvis } from '@/contexts/JarvisContext';
 import { cn } from '@/lib/utils';
+import { formatIndiaTime } from '@/lib/dateUtils';
 
 const severityStyles = {
   info: { icon: Info, color: 'text-primary', bg: 'bg-primary/10' },
@@ -53,7 +54,7 @@ export function LogsWidget() {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                     <span className="capitalize">{log.type}</span>
                     <span>•</span>
-                    <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
+                    <span>{formatIndiaTime(log.timestamp)}</span>
                   </div>
                 </div>
               </div>

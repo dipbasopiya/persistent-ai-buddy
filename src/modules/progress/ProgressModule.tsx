@@ -30,6 +30,7 @@ import {
 import { cn } from '@/lib/utils';
 import { getProductivityFeedback } from '@/services/decisionEngine';
 import { showToast } from '@/services/toastService';
+import { getIndiaDate } from '@/lib/dateUtils';
 
 export function ProgressModule() {
   const { tasks, confidence, recalculateConfidence } = useJarvis();
@@ -52,10 +53,10 @@ export function ProgressModule() {
     score: entry.score,
   }));
 
-  // Calculate weekly data from real tasks
+  // Calculate weekly data from real tasks using India timezone
   const weeklyData = useMemo(() => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const today = new Date();
+    const today = getIndiaDate();
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay()); // Start of current week (Sunday)
     weekStart.setHours(0, 0, 0, 0);
